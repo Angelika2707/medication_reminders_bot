@@ -6,7 +6,6 @@ from aiogram import Bot, Dispatcher, Router, types
 from aiogram.enums import ParseMode
 
 from app.database.models import create_database
-import app.database.requests as db
 
 
 async def main():

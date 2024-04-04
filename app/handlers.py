@@ -4,7 +4,7 @@ from aiogram.types import Message
 from app.keyboard import select_language, select_time_zone_ru, select_time_zone_en
 from app.states import RegistrationUser
 from aiogram.fsm.context import FSMContext
-from app.database.requests import insert_user
+from app.database.requests import insert_user, check_registered_user, insert_new_settings
 
 router = Router()
 
@@ -30,7 +30,13 @@ async def time_zone_markup(message: Message, state: FSMContext) -> None:
     await state.update_data(time_zone=message.text)
     user_language = await state.get_data()
 
-    await insert_user(str(message.from_user.id), user_language["language"], user_language["time_zone"])
+    if await check_registered_user(str(message.from_user.id)):
+        await insert_new_settings(str(message.from_user.id), user_language["language"], user_language["time_zone"])
+        print("Обновлены данные пользователя:", message.from_user.id)
+    else:
+        print("добавден новый пользователь:", message.from_user.id)
+        await insert_user(str(message.from_user.id), user_language["language"], user_language["time_zone"])
+
     if user_language["language"] == "RU":
         await message.answer(
             "Настройка бота завершена!\nЕсли захотите изменить их, воспользуйтесь командой /start",
